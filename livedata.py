@@ -17,9 +17,20 @@ socket.setsockopt_string(zmq.SUBSCRIBE, topicfilter)
 fig = plt.figure()
 fig.canvas.draw()
 x = np.linspace(0, 50., num=100)
-ax = fig.add_subplot(2, 1, 2)
-line, = ax.plot([], lw=3)
-text = ax.text(0.8, 0.5, "")
+axes_num = 3
+ax = []
+line = []
+text = []
+for i in range(0,axes_num):
+    ax_tmp = fig.add_subplot(axes_num, 1, i+1) 
+    line_tmp, = ax_tmp.plot([], lw=3)
+    text_tmp = ax_tmp.text(0.8, 0.5, "")
+
+    ax.append(ax_tmp)
+    line.append(line_tmp)
+    text.append(text_tmp)
+    
+
 plt.show(block=False)
 
 t_start = time.time()
@@ -32,27 +43,24 @@ while True:
         # check for a message, this will not block
         message = socket.recv(flags=zmq.NOBLOCK)
 
-        # a message has been received
-        #print("Received request: %s" % message)
         data = json.loads(message.decode())
-        # print(data[1])
+        
         x.append(cntr)
         y.append(data)
-
         x = x[-100:]
         y = y[-100:]
         cntr += 1
-        ax.set_xlim(x[0], x[-1])
-        ax.set_ylim([-1, 1])
-        #ax.set_ylim([min(y), max(y)])
+        ax[0].set_xlim(x[0], x[-1])
+        ax[0].set_ylim([-1, 1])
+
 
     except zmq.Again as e:
         pass
-    line.set_data(x, y)
+    line[0].set_data(x, y)
 
     tx = 'Mean Frame Rate:\n {fps:.3f}FPS'.format(
         fps=((i+1) / (time.time() - t_start)))
-    text.set_text(tx)
+    text[0].set_text(tx)
 
     i += 1
     fig.canvas.draw()

@@ -119,7 +119,9 @@ def process_data(data):
     accel = (-values[0], values[1], values[2])  # x,y,z
     mag = (values[3], values[4], values[5])  # xy,xz,zy
     gyro = (values[6], -values[7], -values[8])  # x,y,z
-    gps = (values[9], values[10], values[11])  # lat, long, alt
+    proximity = (values[9], values[10], values[11]) #x,y,z
+    gps = (values[12], values[13], values[14])  # lat, long, alt
+
 
     #madgwick.update(gyro, accel, mag)
     madgwick.update_imu(gyro, accel)
@@ -142,6 +144,9 @@ def process_data(data):
 
     # calc pos
     linPos = linPos_prev + linVelHP * samplePeriod
+
+    if proximity[0] == 0:
+        linPos = [0,0,0]
 
     # highpass pos
     #linPosHPEMA = alpha * linPos + (1.0-alpha)*linPosHPEMA
